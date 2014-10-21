@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+
+    <!--
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css">
+ -->
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/font-awesome-4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/PNotify/pnotify.custom.min.css">
+
+    <!--
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    -->
+    <script src="/jquery-1.11.1.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/PNotify/pnotify.custom.min.js"></script>
+
+    <script src="/flash2.js"></script>
+    <style>
+        @font-face {
+            font-family: 'BebasNeueRegular';
+            src: url('/digital-clock/BebasNeue-webfont.eot');
+            src: url('/digital-clock/BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),
+            url('/digital-clock/BebasNeue-webfont.woff') format('woff'),
+            url('/digital-clock/BebasNeue-webfont.ttf') format('truetype'),
+            url('/digital-clock/BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
+            font-weight: normal;
+            font-style: normal;
+
+        }
+
+        .clock-container {
+            position: fixed;
+            color: black;
+            top: 0;
+            right: 0;
+        }
+
+
+        .clock {
+            border: 1px solid #333;
+            color: #fff;
+            margin: auto;
+            padding: 10px;
+
+            background: #333;
+        }
+
+
+        #Date { font-family:'BebasNeueRegular', Arial, Helvetica, sans-serif; font-size:.7em; text-align:center; text-shadow:0 0 5px #00c6ff; }
+
+        ul {  margin:0 auto; padding:0px; list-style:none; text-align:center; }
+        ul li { display:inline; font-size:1em; text-align:center; font-family:'BebasNeueRegular', Arial, Helvetica, sans-serif; text-shadow:0 0 5px #00c6ff; }
+
+        #point { position:relative; -moz-animation:mymove 1s ease infinite; -webkit-animation:mymove 1s ease infinite; padding-left:3px; padding-right:3px; }
+
+        @-webkit-keyframes mymove
+        {
+            0% {opacity:1.0; text-shadow:0 0 20px #00c6ff;}
+            50% {opacity:0; text-shadow:none; }
+            100% {opacity:1.0; text-shadow:0 0 20px #00c6ff; }
+        }
+
+
+        @-moz-keyframes mymove
+        {
+            0% {opacity:1.0; text-shadow:0 0 20px #00c6ff;}
+            50% {opacity:0; text-shadow:none; }
+            100% {opacity:1.0; text-shadow:0 0 20px #00c6ff; }
+        }
+
+
+        /* background setup */
+        .background {
+            background-repeat:no-repeat;
+            /* custom background-position */
+            background-position:50% 50%;
+            /* ie8- graceful degradation */
+            background-position:50% 50%\9 !important;
+        }
+
+        /* fullscreen setup */
+        html, body {
+            /* give this to all tags from html to .fullscreen */
+            height:100%;
+        }
+        .fullscreen,
+        .content-a {
+            width:100%;
+            min-height:100%;
+        }
+        .not-fullscreen,
+        .not-fullscreen .content-a,
+        .fullscreen.not-overflow,
+        .fullscreen.not-overflow .content-a {
+            height:100%;
+            overflow:hidden;
+        }
+
+        /* content centering styles */
+        .content-a {
+            display:table;
+        }
+        .content-b {
+            display:table-cell;
+            position:relative;
+            vertical-align:middle;
+            text-align:center;
+        }
+
+        /* visual styles */
+        body{
+            margin:0;
+            font-family:sans-serif;
+            font-size:28px;
+
+            color:#ffffff;
+        }
+        section {
+            background:#9ed100;
+        }
+        .not-fullscreen {
+            height:50%;
+        }
+
+        .debug {
+            color: #000000;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+        }
+
+        .icons {
+            color: #000000;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            text-align: right;
+        }
+
+
+        .alertdd {
+            padding: 10px;
+        }
+        .alertdd > span {
+            padding: 10px 30px;
+        }
+        .alertdd.alert-success > span {
+            background: none repeat scroll 0 0 #dff0d8;
+        }
+        .alertdd.alert-info > span {
+            background: none repeat scroll 0 0 #d9edf7;
+        }
+        .alertdd.alert-error > span {
+            background: none repeat scroll 0 0 #f2dede;
+        }
+    </style>
+    {% include 'sensorstyle.css.twig' %}
+</head>
+<body>
+
+<div id="t1" class="fullscreen background" style="background-image:url('/assets/{{ room.background }}');" data-img-width="1600" data-img-height="1064">
+    <div class="content-a">
+        <div class="content-b">
+            No message...
+        </div>
+        <div class="debug">
+            <div class="alert">
+                <span id="monitor"><i class="fa fa-spinner"></i></span>
+                <span id="msg" class="result">...</span>
+            </div>
+
+        </div>
+        <div class="clock-container">
+            <div class="clock">
+                <div id="Date"></div>
+
+                <ul>
+                    <li id="hours"></li>
+                    <li id="point">:</li>
+                    <li id="min"></li>
+                    <li id="point">:</li>
+                    <li id="sec"></li>
+                </ul>
+
+            </div>
+        </div>
+        <div class="icons">
+            {% for sensor in sensors %}
+                <button id="{{ sensor.id }}" type="button" class="sensors {{ sensor.id }} btn btn-primary btn-lg active">
+                    <i class="fa fa-4x"></i></button>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    $( "a" ).flashNotification(
+            {
+                'ajax' : "{{ room.path }}"
+            }
+    );
+    $( ".sensors").hide();
+
+</script>
+
+
+<script>
+    /* fix vertical when not overflow
+     call fullscreenFix() if .fullscreen content changes */
+    function fullscreenFix(){
+        var h = $('body').height();
+        // set .fullscreen height
+        $(".content-b").each(function(i){
+            if($(this).innerHeight() <= h){
+                $(this).closest(".fullscreen").addClass("not-overflow");
+            }
+        });
+    }
+    $(window).resize(fullscreenFix);
+    fullscreenFix();
+
+    /* resize background images */
+    function backgroundResize(){
+        var windowH = $(window).height();
+        $(".background").each(function(i){
+            var path = $(this);
+            // variables
+            var contW = path.width();
+            var contH = path.height();
+            var imgW = path.attr("data-img-width");
+            var imgH = path.attr("data-img-height");
+            var ratio = imgW / imgH;
+            // overflowing difference
+            var diff = parseFloat(path.attr("data-diff"));
+            diff = diff ? diff : 0;
+            // remaining height to have fullscreen image only on parallax
+            var remainingH = 0;
+            if(path.hasClass("parallax")){
+                var maxH = contH > windowH ? contH : windowH;
+                remainingH = windowH - contH;
+            }
+            // set img values depending on cont
+            imgH = contH + remainingH + diff;
+            imgW = imgH * ratio;
+            // fix when too large
+            if(contW > imgW){
+                imgW = contW;
+                imgH = imgW / ratio;
+            }
+            //
+            path.data("resized-imgW", imgW);
+            path.data("resized-imgH", imgH);
+            path.css("background-size", imgW + "px " + imgH + "px");
+        });
+    }
+    $(window).resize(backgroundResize);
+    $(window).focus(backgroundResize);
+    backgroundResize();
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+// Create two variable with the names of the months and days in an array
+        var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+        var dayNames= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+// Create a newDate() object
+        var newDate = new Date();
+// Extract the current date from Date object
+        newDate.setDate(newDate.getDate());
+// Output the day, date, month and year
+        $('#Date').html(dayNames[newDate.getDay()] + " " + newDate.getDate() + ' ' + monthNames[newDate.getMonth()] + ' ' + newDate.getFullYear());
+
+        setInterval( function() {
+            // Create a newDate() object and extract the seconds of the current time on the visitor's
+            var seconds = new Date().getSeconds();
+            // Add a leading zero to seconds value
+            $("#sec").html(( seconds < 10 ? "0" : "" ) + seconds);
+        },1000);
+
+        setInterval( function() {
+            // Create a newDate() object and extract the minutes of the current time on the visitor's
+            var minutes = new Date().getMinutes();
+            // Add a leading zero to the minutes value
+            $("#min").html(( minutes < 10 ? "0" : "" ) + minutes);
+        },1000);
+
+        setInterval( function() {
+            // Create a newDate() object and extract the hours of the current time on the visitor's
+            var hours = new Date().getHours();
+            // Add a leading zero to the hours value
+            $("#hours").html(( hours < 10 ? "0" : "" ) + hours);
+        }, 1000);
+
+    });
+</script>
+</body>
+</html>

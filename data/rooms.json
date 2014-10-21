@@ -1,0 +1,33 @@
+[
+    {
+        "id":   "room1",
+        "name": "Room 1",
+        "desc": "This is the first test room",
+        "background": "room1.jpg"
+    },
+    {
+        "id":   "room2",
+        "name": "Room 2",
+        "desc": "This is the second test room",
+        "background": "room2.jpg"
+    },
+    {
+        "id":   "tv",
+        "name": "Interactive TV",
+        "desc": "An interactive TV with alert HUD",
+        "template": "tv2.twig",
+        "background": "video2.mp4"
+    },
+    {
+        "id":   "mobile",
+        "name": "Mobile App",
+        "desc": "A mobile app to monitor the sensors",
+        "template": "mobile.twig"
+    },
+    {
+        "id":   "vibrate",
+        "name": "Mobile App",
+        "desc": "A mobile app to monitor the sensors",
+        "template": "vibrate.twig"
+    }
+]

@@ -1,0 +1,253 @@
+{% extends 'site.twig' %}
+
+{% block page_header %}WoZ Notify{% endblock %}
+{% block page_subheader %}Administrator{% endblock %}
+
+{% block injectCSS  %}
+<!--
+<link rel="stylesheet" href="//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.css">
+-->
+<link rel="stylesheet" href="/PNotify/pnotify.custom.min.css">
+{% include 'sensorstyle.css.twig' %}
+{% endblock %}
+
+
+{% block injectJS %}
+    <!--
+    <script src="//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.js"></script>
+    -->
+    <script src="/PNotify/pnotify.custom.min.js"></script>
+    <script src="/jquery.form.js"></script>
+    <script>
+        $(document).ready(function() {
+            // bind 'myForm' and provide a simple callback function
+            $(function() {
+                myObject = {}; //myObject[numberline] = "textEachLine";
+                $.get("/marytts?cmd=voices",function( data ) {
+                    var lines = data.msg.split("\r\n");
+                    for(var i  in lines){
+                        //save in object "myObject":
+                        var items =  lines[i].split(" ");
+                        if (items=="") break;
+                        myObject[i] = {
+                            'name' :   items[0],
+                            'locale':  items[1]
+                        };
+                        //print in console
+                        console.log("line " + i + " :" + myObject[i].name);
+                        $("<div/>",{ "class": "radio"}).append(
+                                $("<label/>",{"for": "radio-"+i}).append(
+                                        $("<input/>",{
+                                            "name" : "radiovoice",
+                                            "id": "radio-"+i,
+                                            "value": myObject[i].name,
+                                            "type": "radio"
+                                        })
+                                ).append(myObject[i].name)
+                        ).appendTo($("#voicelist"));
+
+                        //if (i==0)
+                        //    $("#radio-0").prop("checked",true);
+
+                    }
+                    $('#voiceOn').prop('checked', true).prop('disabled', false);
+                    //$("#voicegroup").show();
+
+
+                }) .fail(function(e) {
+                    console.log(e);
+
+                    new PNotify({
+                        text: e.responseJSON.error,
+                        delay: 8000,
+                        type: 'error'
+                    });
+
+                });
+            });
+
+            $('.form-horizontal').each(function() {
+                var that =this;
+                $(this).ajaxForm(function() {
+                    new PNotify({
+                        text: 'Message broadcasted to rooms',
+                        delay: 1000,
+                        type: 'success'
+                    });
+
+                });
+            });
+
+
+        });
+
+        $('[data-tooltip="tooltip"]').tooltip();
+        $('button.sensors').click(function(e) {
+            e.stopImmediatePropagation()
+            $(this).button('toggle');
+            var act = $(this).hasClass('active') ? "active":"";
+            var id= $(this).attr('id');
+            /*$.post( "sensor/"+id+"/"+act, function( data ) {
+                console.log(data);
+            });*/
+            $.post("{{ urlFor('post.sensor.base') }}"+id+"/"+act, function( data ) {
+                console.log(data);
+            });
+        });
+
+
+        $("#voiceOn").click(function(){
+            console.log(this.checked);
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+
+
+
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Alerts</h3>
+                </div>
+                <div class="panel-body">
+
+                    <form class="form-horizontal" id="myForm1"  action="{{ urlFor('post.notify') }}" method="post">
+                        <fieldset>
+                            <legend>Rooms</legend>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="checkboxes">Targets</label>
+                                <div class="col-md-4">
+                                    {% for room in rooms %}
+                                        <div class="checkbox">
+                                            <label for="checkboxes-{{ loop.index }}">
+                                                <input name="checkroom[]" id="checkboxes-{{ loop.index }}" value="{{ room.id }}" type="checkbox">
+                                                {{ room.name }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Message</legend>
+
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="textarea">Text</label>
+                                <div class="col-md-8">
+                                    <textarea class="form-control" id="textarea" name="textarea">default text</textarea>
+                                </div>
+                            </div>
+
+
+
+                        </fieldset>
+                        <fieldset>
+
+                            <legend>Formats</legend>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label">Format</label>
+                                <div class="col-md-8">
+
+                                    <div class="checkbox">
+                                        <label for="textOn">
+                                            <input name="format[]" id="textOn" value="text" checked="checked" type="checkbox">
+                                            Plain Text
+                                        </label>
+
+                                    </div>
+                                    <div class="checkbox">
+
+                                        <label for="voiceOn">
+                                            <input name="format[]" id="voiceOn" value="tts" disabled="disabled" type="checkbox">
+                                            Text-To-Speech
+                                        </label>
+                                    </div>
+                                    <div class="checkbox">
+
+                                        <label for="pnotifyOn">
+                                            <input name="format[]" id="pnotifyOn" value="pnotify" type="checkbox">
+                                            Floating Alert
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="voicegroup" style="display: none;">
+
+                                <label class="col-md-4 control-label" for="voices">Voices</label>
+                                <div class="col-md-4" id="voicelist">
+
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend></legend>
+                            <div class="form-group">
+                                <div class="col-md-8">
+                                    <input name="type" value="message" type="hidden">
+                                    <button id="button1id" class="btn btn-success">Send the message</button>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </form>
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-6 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Sensor Notification</h3>
+                </div>
+                <div class="panel-body">
+
+                    {% for sensor in sensors %}
+                        <button id="{{ sensor.id }}" type="button"
+                                data-toggle="button" data-tooltip="tooltip"
+                                title="{{ sensor.desc }}"
+                                aria-pressed="false" autocomplete="off" class="sensors {{ sensor.id }} btn btn-success btn-lg {{ sensor.status }}">
+                            <i class="fa"></i></button>
+                    {% endfor %}
+
+
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Admin</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="myForm2" action="{{ urlFor('post.notify') }}" method="post">
+                        <div class="form-group "><div class="col-md-8">
+                                <input name="type" value="admin" type="hidden">
+                                <input type="submit" name="action" value="reload" class="btn btn-warning" />
+                                <input type="submit" name="action" value="clear" class="btn btn-danger" />
+                            </div></div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+
+
+        </div>
+    </div>
+
+{% endblock %}

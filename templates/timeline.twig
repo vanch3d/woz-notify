@@ -1,0 +1,117 @@
+{% extends 'site.twig' %}
+
+{% block page_header %}WoZ Notify{% endblock %}
+{% block page_subheader %}Timeline{% endblock %}
+
+{% block injectCSS %}
+    <link rel="stylesheet" href="./vis/vis.css">
+    <style>
+        .vis.timeline .item.range .content {
+            overflow: visible;
+        }
+        .vis.timeline .item.box {
+            background-color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="today"></div>
+    <div id="mytimeline"></div>
+{% endblock %}
+
+{% block injectJS %}
+    <!--
+    <script src="//cdn.jsdelivr.net/momentjs/2.8.3/moment.min.js"></script>
+    -->
+    <script src="/moment.min.js"></script>
+    <script src="/vis/vis.js"></script>
+    <script type="text/javascript">
+        $(function() {
+
+            var rooms = {{ ids|json_encode|raw  }};
+
+            var groups = new vis.DataSet();
+            for (var g = 0; g < rooms.length; g++) {
+                groups.add({id: rooms[g], content: rooms[g]});
+            }
+
+
+            var today = new Date();
+            var today2 = $.now();
+
+            var day = moment().format('MMMM Do YYYY, HH:mm:ss');
+
+            $('#today').html(day);
+
+            console.log( "ready!" );
+            var container = document.getElementById('mytimeline');
+
+            $.ajax({
+                url: '{{ urlFor('timeline.json') }}',
+                success: function (data) {
+                    var dataset = new vis.DataSet();
+                    $.each(data, function(index, value){
+                        value['id'] = index;
+                        value['content'] = value['msg'];
+                        value['group'] = value['target'];
+                        if (value['type']=="range")
+                        {
+                        }
+                        else
+                        {
+
+
+                            value['level'] = value['type'];
+                            value['type'] = 'box';
+                            value['start'] = value['date'];
+                        }
+                        console.log(index,value);
+                        dataset.add(value);
+                    });
+                    // Create a Timeline
+                    var options = {
+                        groupOrder: 'id'  // groupOrder can be a property name or a sorting function
+                    };
+                    var timeline = new vis.Timeline(container);
+                    timeline.setOptions(options);
+                    timeline.setGroups(groups);
+                    timeline.setItems(dataset);
+                }
+            });
+
+            // Create a DataSet with data (enables two way data binding)
+            /*var data = new vis.DataSet([
+                {id: 1, content: 'item 1', start: '2013-04-20'},
+                {id: 2, content: 'item 2', start: '2013-04-14'},
+                {id: 3, content: 'item 3', start: '2013-04-18'},
+                {id: 4, content: 'item 4', start: '2013-04-16', end: '2013-04-19'},
+                {id: 5, content: 'item 5', start: '2013-04-25'},
+                {id: 6, content: 'item 6', start: '2013-04-27'}
+            ]);*/
+            /*var data = new vis.DataSet();
+            for (i = 0; i < 10; i++) {
+                var gg = Math.floor((Math.random() * 100) + 1 -50);
+                var hh = Math.floor((Math.random() * 2));
+                data.add({
+                    id: i+1,
+                    group: rooms[hh],
+                    content: 'item '+(i+1),
+                    start: moment().add(gg,'s').format()
+                });
+            }*/
+            // Configuration for the Timeline
+
+           /* var options = {
+                groupOrder: 'id'  // groupOrder can be a property name or a sorting function
+            };
+            // Create a Timeline
+            var timeline = new vis.Timeline(container);
+            timeline.setOptions(options);
+            timeline.setGroups(groups);
+            timeline.setItems(data);*/
+
+        });
+    </script>
+
+{% endblock %}

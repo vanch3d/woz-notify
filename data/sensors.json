@@ -1,0 +1,63 @@
+{
+    "watertap": {
+        "id":   "watertap",
+        "name": "Tap",
+        "desc": "The tap in the room 1",
+        "room": "room1"
+    },
+    "oven": {
+        "id":   "oven",
+        "name": "Oven",
+        "desc": "The oven in the room 1",
+        "room": "room1"
+    },
+    "door": {
+        "id":   "door",
+        "name": "Door",
+        "desc": "The door in room 2",
+        "room": "room2"
+    },
+    "light": {
+        "id":   "light",
+        "name": "light",
+        "desc": "The light in room 1 is on",
+        "room": "room1"
+    },
+    "temperature": {
+        "id":   "temperature",
+        "name": "Heating",
+        "desc": "Central Heating in house",
+        "room": "room1"
+    },
+    "phone": {
+        "id":   "phone",
+        "name": "Phone",
+        "desc": "Your phone is ringing",
+        "room": "room2"
+    },
+    "visit": {
+        "id":   "visit",
+        "name": "Visit",
+        "desc": "Someone is at the door",
+        "room": "room2"
+    },
+    "appointment": {
+        "id":   "appointment",
+        "name": "Appointment",
+        "desc": "You have an appointment pending",
+        "room": "room2"
+    },
+    "medication": {
+        "id":   "medication",
+        "name": "Medication",
+        "desc": "You have medications to take",
+        "room": "room2"
+    },
+    "trash": {
+        "id":   "trash",
+        "name": "Trash",
+        "desc": "This is bin collection day !",
+        "room": "room1"
+    }
+
+}
