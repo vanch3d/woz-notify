@@ -5,7 +5,7 @@
  *
  * @link      https://github.com/vanch3d/woz-notify
  * @copyright Copyright (c) 2014 Nicolas Van Labeke <nicolas.github@calques3d.org>
- * @license   https://github.com/vanch3d/woz-notify/blob/3.x/LICENSE.md (MIT License)
+ * @license   https://github.com/vanch3d/woz-notify/blob/master/LICENSE.md (MIT License)
  */
 
 require '../vendor/autoload.php';
